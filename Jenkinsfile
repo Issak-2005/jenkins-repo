@@ -13,6 +13,24 @@ pipeline {
     }
 
     stages {
+        stage('Read Properties') {
+            steps {
+                script {
+                     // Load properties from the file in the workspace
+                    def props = readProperties file: 'jenkins.properties'
+
+                    // // Access individual properties
+                    // echo "ENV = ${props['ENV']}"
+                    // echo "REGION = ${props['REGION']}"
+                    // echo "TIMEOUT = ${props['TIMEOUT']}"
+
+                    // You can also assign them to environment variables if needed
+                    env.GIT_URL = props['GIT_URL']
+                    env.BRANCH_NAME=props['BRANCH_NAME']
+                    env.IMAGE_NAME=props['IMAGE_NAME']
+                }
+            }
+        }
         stage('Clone Repo') {
             steps {
                 git branch: "${params.BRANCH_NAME}", credentialsId: 'github-cred-id', url: "${params.GIT_URL}"
