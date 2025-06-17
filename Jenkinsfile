@@ -9,31 +9,31 @@ pipeline {
         stage('Read Properties') {
             steps {
                 script {
-                     // Load properties from the file in the workspace
+                    // Load properties from file
                     def props = readProperties file: 'jenkins.properties'
 
-                    // // Access individual properties
-                    // echo "ENV = ${props['ENV']}"
-                    // echo "REGION = ${props['REGION']}"
-                    // echo "TIMEOUT = ${props['TIMEOUT']}"
+                    // Set to environment for use in other stages
+                    env.GIT_URL     = props['GIT_URL']
+                    env.BRANCH_NAME = props['BRANCH_NAME']
+                    env.IMAGE_NAME  = props['IMAGE_NAME']
+                    env.IMAGE_TAG   = props['IMAGE_TAG']
+                }
+            }
+        }
 
-                    // You can also assign them to environment variables if needed
-                    env.GIT_URL = props['GIT_URL']
-                    env.BRANCH_NAME=props['BRANCH_NAME']
-                    env.IMAGE_NAME=props['IMAGE_NAME']
-                }
-            }
-        }
         stage('Clone Repo') {
             steps {
-                git branch: "${params.BRANCH_NAME}", credentialsId: 'github-cred-id', url: "${params.GIT_URL}"
+                script {
+                    // Using env vars in script block
+                    git branch: env.BRANCH_NAME, credentialsId: 'github-cred-id', url: env.GIT_URL
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${params.IMAGE_NAME}:${params.IMAGE_TAG} ."
+                    sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                 }
             }
         }
@@ -43,7 +43,7 @@ pipeline {
                 script {
                     sh """
                         echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                        docker push ${params.IMAGE_NAME}:${params.IMAGE_TAG}
+                        docker push ${env.IMAGE_NAME}:${env.IMAGE_TAG}
                     """
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Docker image pushed: ${params.IMAGE_NAME}:${params.IMAGE_TAG}"
+            echo "✅ Docker image pushed: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
         }
         failure {
             echo "❌ Pipeline failed"
