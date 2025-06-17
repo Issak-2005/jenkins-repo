@@ -25,7 +25,7 @@ pipeline {
             steps {
                 script {
                     // Using env vars in script block
-                    git branch: env.BRANCH_NAME, credentialsId: 'github-cred-id', url: env.GIT_URL
+                    git branch: $env.BRANCH_NAME, credentialsId: 'github-cred-id', url: $env.GIT_URL
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
+                    sh "docker build -t $env.IMAGE_NAME:$env.IMAGE_TAG ."
                 }
             }
         }
