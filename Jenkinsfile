@@ -25,7 +25,7 @@ pipeline {
             steps {
                 script {
                     // Using env vars in script block
-                    git branch: $env.BRANCH_NAME, credentialsId: 'github-cred-id', url: $env.GIT_URL
+                    git branch: $BRANCH_NAME, credentialsId: 'github-cred-id', url: $GIT_URL
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t $env.IMAGE_NAME:$env.IMAGE_TAG ."
+                    sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
                 }
             }
         }
@@ -43,7 +43,7 @@ pipeline {
                 script {
                     sh """
                         echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                        docker push ${env.IMAGE_NAME}:${env.IMAGE_TAG}
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Docker image pushed: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+            echo "✅ Docker image pushed: ${IMAGE_NAME}:${IMAGE_TAG}"
         }
         failure {
             echo "❌ Pipeline failed"
