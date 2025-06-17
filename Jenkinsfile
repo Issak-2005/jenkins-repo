@@ -40,11 +40,12 @@ pipeline {
 
         stage('Login to Docker Hub & Push Image') {
             steps {
-                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
-                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
-                    }
-
+                script {
+                    sh """
+                        echo "${DOCKERHUB_CREDENTIALS.PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS.USR}" --password-stdin
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                    """  
+                }
             }
         }
     }
