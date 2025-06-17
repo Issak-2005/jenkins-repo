@@ -24,13 +24,12 @@ pipeline {
         stage('Read Properties') {
             steps {
                 script {
-                    def props = readProperties file: 'app/jenkins.properties'
+                    def props = readProperties file: 'jenkins.properties'
                     env.IMAGE_NAME = props['IMAGE_NAME']
                     env.IMAGE_TAG  = props['IMAGE_TAG']
                 }
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
