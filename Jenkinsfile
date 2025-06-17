@@ -42,7 +42,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        echo "${DOCKERHUB_CREDENTIALS.PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS.USR}" --password-stdin
+                        echo "${env.DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${env.DOCKERHUB_CREDENTIALS_USR}" --password-stdin
                         docker push ${IMAGE_NAME}:${IMAGE_TAG}
                     """  
                 }
