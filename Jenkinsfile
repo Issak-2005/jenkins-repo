@@ -1,13 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'GIT_URL', description: 'GitHub repository URL')
-        string(name: 'BRANCH_NAME',  description: 'Git branch to clone')
-        string(name: 'IMAGE_NAME',  description: 'Docker image name (e.g., user/image)')
-        string(name: 'IMAGE_TAG', defaultValue: "latest", description: 'Docker image tag (e.g., latest)')
-    }
-
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
     }
@@ -25,9 +18,9 @@ pipeline {
                     // echo "TIMEOUT = ${props['TIMEOUT']}"
 
                     // You can also assign them to environment variables if needed
-                    params.GIT_URL = props['GIT_URL']
-                    params.BRANCH_NAME=props['BRANCH_NAME']
-                    params.IMAGE_NAME=props['IMAGE_NAME']
+                    env.GIT_URL = props['GIT_URL']
+                    env.BRANCH_NAME=props['BRANCH_NAME']
+                    env.IMAGE_NAME=props['IMAGE_NAME']
                 }
             }
         }
