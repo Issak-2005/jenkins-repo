@@ -25,9 +25,9 @@ pipeline {
                     // echo "TIMEOUT = ${props['TIMEOUT']}"
 
                     // You can also assign them to environment variables if needed
-                    env.GIT_URL = props['GIT_URL']
-                    env.BRANCH_NAME=props['BRANCH_NAME']
-                    env.IMAGE_NAME=props['IMAGE_NAME']
+                    params.GIT_URL = props['GIT_URL']
+                    params.BRANCH_NAME=props['BRANCH_NAME']
+                    params.IMAGE_NAME=props['IMAGE_NAME']
                 }
             }
         }
