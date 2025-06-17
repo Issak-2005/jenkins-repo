@@ -14,8 +14,9 @@ pipeline {
         stage('Clone Repo') {
             steps {
                 script {
-                    // Use "${params.GIT_BRANCH}" instead of ${params.BRANCH_NAME}
-                    git branch: "${params.GIT_BRANCH}", credentialsId: 'github-cred-id', url: "${params.GIT_URL}"
+                    git branch: "${params.GIT_BRANCH}",
+                        credentialsId: 'github-cred-id',
+                        url: "${params.GIT_URL}"
                 }
             }
         }
@@ -24,7 +25,6 @@ pipeline {
             steps {
                 script {
                     def props = readProperties file: 'app/jenkins.properties'
-                    // Assign to environment variables properly
                     env.IMAGE_NAME = props['IMAGE_NAME']
                     env.IMAGE_TAG  = props['IMAGE_TAG']
                 }
@@ -41,11 +41,19 @@ pipeline {
 
         stage('Login to Docker Hub & Push Image') {
             steps {
-                script {
-                    sh """
-                        echo "${env.DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${env.DOCKERHUB_CREDENTIALS_USR}" --password-stdin
-                        docker push ${env.IMAGE_NAME}:${env.IMAGE_TAG}
-                    """
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-cred-id',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    script {
+                        sh """
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push "$IMAGE_NAME:$IMAGE_TAG"
+                        """
+                    }
                 }
             }
         }
