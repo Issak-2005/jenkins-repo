@@ -9,6 +9,15 @@ pipeline {
         ARTIFACTORY_SERVER_ID = 'https:///artifactory/api/maven/my-java-app-libs-snapshot' // Jenkins Artifactory Server ID
     }
   stages{
+    stage('Clone Repo') {
+            steps {
+                script {
+                    git branch: "${params.GIT_BRANCH}",
+                        credentialsId: 'github-cred-id',
+                        url: "${params.GIT_URL}"
+                }
+            }
+        }
     stage('Build & Deploy') {
             steps {
                 script {
@@ -20,11 +29,11 @@ pipeline {
                         goals: 'clean install deploy',
                         buildInfo: true,
                         resolver: [
-                            repo: 'libs-release',
+                            repo: 'my-java-app',
                             serverId: ARTIFACTORY_SERVER_ID
                         ],
                         deployer: [
-                            repo: 'libs-release-local',
+                            repo: 'my-java-app',
                             serverId: ARTIFACTORY_SERVER_ID
                         ]
                     )
