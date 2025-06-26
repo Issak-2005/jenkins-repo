@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_SERVER_ID = 'jfrog-ids' // This is the ID you configured
+        ARTIFACTORY_SERVER_ID = 'my-artifactory-server' // This is the ID you configured
     }
 
     parameters {
