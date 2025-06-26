@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven 3.8.5' // Name from Jenkins Global Tool Config
+        jdk 'JDK 11'        // Name from Jenkins Global Tool Config
+    }
+
+    environment {
+        ARTIFACTORY_SERVER_ID = 'artifactory-server' // Jenkins Artifactory Server ID
+    }
 
     parameters {
         string(name: 'GIT_BRANCH', description: 'Enter Branch Name')
