@@ -1,48 +1,43 @@
 pipeline {
-  agent any
-  tools {
-        maven 'Maven 3.8.5' // Name from Jenkins Global Tool Config
-        jdk 'JDK 11'        // Name from Jenkins Global Tool Config
+    agent any
+
+    tools {
+        maven 'Maven 3.8.5'    // This name must match Global Tool Config
+        jdk 'JDK 11'           // Must be configured in Global Tool Config
     }
 
     environment {
-        ARTIFACTORY_SERVER_ID = 'https://trial09dfm3.jfrog.io/ui/admin/repositories/virtual/my-java-app-libs-snapshot' // Jenkins Artifactory Server ID
-    }
-  stages{
-    stage('Clone Repo') {
+        ARTIFACTORY_SERVER_ID = 'https://trial09dfm3.jfrog.io/ui/admin/repositories/virtual/my-java-app-libs-snapshot' // ✅ This must be the **Server ID** set in Jenkins → Manage Jenkins → Configure System → Artifactory
+    }
+
+    parameters {
+        string(name: 'GIT_URL', defaultValue: 'https://github.com/your-org/your-repo.git', description: 'Git repository URL')
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Branch to build')
+    }
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git branch: "${params.GIT_BRANCH}",
+                    credentialsId: 'github-cred-id', // ID from Jenkins credentials manager
+                    url: "${params.GIT_URL}"
+            }
+        }
+
+        stage('Build & Deploy') {
             steps {
                 script {
-                    git branch: "${params.GIT_BRANCH}",
-                        credentialsId: 'github-cred-id',
-                        url: "${params.GIT_URL}"
+                    def server = Artifactory.server("${ARTIFACTORY_SERVER_ID}") // Artifactory server ID
+
+                    def rtMaven = Artifactory.newMavenBuild()
+                    rtMaven.tool = 'Maven 3.8.5'          // Match Global Tool name
+                    rtMaven.resolver server: server, releaseRepo: 'my-java-app-libs-release', snapshotRepo: 'my-java-app-libs-snapshot'
+                    rtMaven.deployer server: server, releaseRepo: 'my-java-app-libs-release', snapshotRepo: 'my-java-app-libs-snapshot'
+
+                    def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install deploy'
+                    server.publishBuildInfo buildInfo
                 }
             }
         }
-    stage('Build & Deploy') {
-            steps {
-                script {
-                    def server = Artifactory.server(ARTIFACTORY_SERVER_ID)
-
-                    def buildInfo = server.mavenBuild(
-                        tool: 'Maven 3.8.5',
-                        pom: 'pom.xml',
-                        goals: 'clean install deploy',
-                        buildInfo: true,
-                        resolver: [
-                            repo: 'my-java-app',
-                            serverId: ARTIFACTORY_SERVER_ID
-                        ],
-                        deployer: [
-                            repo: 'my-java-app',
-                            serverId: ARTIFACTORY_SERVER_ID
-                        ]
-                    )
-
-                    server.publishBuildInfo buildInfo
-                }
-            }
-        }
-  }
-  
-    
+    }
 }
