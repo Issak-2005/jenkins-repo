@@ -1,0 +1,39 @@
+pipeline {
+  agent any
+  tools {
+        maven 'Maven 3.8.5' // Name from Jenkins Global Tool Config
+        jdk 'JDK 11'        // Name from Jenkins Global Tool Config
+    }
+
+    environment {
+        ARTIFACTORY_SERVER_ID = 'https:///artifactory/api/maven/my-java-app-libs-snapshot' // Jenkins Artifactory Server ID
+    }
+  stages{
+    stage('Build & Deploy') {
+            steps {
+                script {
+                    def server = Artifactory.server(ARTIFACTORY_SERVER_ID)
+
+                    def buildInfo = server.mavenBuild(
+                        tool: 'Maven 3.8.5',
+                        pom: 'pom.xml',
+                        goals: 'clean install deploy',
+                        buildInfo: true,
+                        resolver: [
+                            repo: 'libs-release',
+                            serverId: ARTIFACTORY_SERVER_ID
+                        ],
+                        deployer: [
+                            repo: 'libs-release-local',
+                            serverId: ARTIFACTORY_SERVER_ID
+                        ]
+                    )
+
+                    server.publishBuildInfo buildInfo
+                }
+            }
+        }
+  }
+  
+    
+}
