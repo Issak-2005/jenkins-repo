@@ -25,24 +25,27 @@ pipeline {
         }
 
         stage('Build & Deploy') {
-            steps {
-                script {
-                    // ✅ Create Artifactory server instance
-                    def server = Artifactory.server("${ARTIFACTORY_SERVER_ID}")
+    steps {
+        script {
+            def server = Artifactory.server("${ARTIFACTORY_SERVER_ID}")
+            def buildInfo = Artifactory.newBuildInfo()
 
-                    // ✅ Configure Maven build
-                    def rtMaven = Artifactory.newMavenBuild()
-                    rtMaven.tool = 'Maven 3.8.5'
-                    rtMaven.resolver server: server, releaseRepo: 'my-java-app-libs-release', snapshotRepo: 'my-java-app-libs-snapshot'
-                    rtMaven.deployer server: server, releaseRepo: 'my-java-app-libs-release', snapshotRepo: 'my-java-app-libs-snapshot'
+            def rtMaven = Artifactory.newMavenBuild()
+            rtMaven.tool = 'Maven 3.8.5'
+            rtMaven.deployer releaseRepo: 'my-java-app-libs-release',
+                             snapshotRepo: 'my-java-app-libs-snapshot',
+                             server: server
 
-                    // ✅ Run Maven build and capture build info
-                    def buildInfo = rtMaven.run pom: 'pom.xml', goals: 'clean install deploy'
+            rtMaven.resolver releaseRepo: 'my-java-app-libs-release',
+                             snapshotRepo: 'my-java-app-libs-snapshot',
+                             server: server
 
-                    // ✅ Publish build info to Artifactory
-                    server.publishBuildInfo buildInfo
-                }
-            }
+            rtMaven.run pom: 'pom.xml', goals: 'clean install deploy', buildInfo: buildInfo
+            server.publishBuildInfo(buildInfo)
+        }
+    }
+}
+
         }
     }
 }
