@@ -7,15 +7,12 @@ pipeline {
 
     environment {
         ARTIFACTORY_SERVER_ID = 'artifactory-server' // Jenkins Artifactory Server ID
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
     }
 
     parameters {
         string(name: 'GIT_BRANCH', description: 'Enter Branch Name')
         string(name: 'GIT_URL', description: 'Enter Repo URL')
-    }
-
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred-id')
     }
 
     stages {
