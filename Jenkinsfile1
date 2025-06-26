@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_SERVER_ID = 'https:///artifactory/api/maven/my-java-app-libs-snapshot' // Jenkins Artifactory Server ID
+        ARTIFACTORY_SERVER_ID = 'https://trial09dfm3.jfrog.io/ui/admin/repositories/virtual/my-java-app-libs-snapshot' // Jenkins Artifactory Server ID
     }
   stages{
     stage('Clone Repo') {
