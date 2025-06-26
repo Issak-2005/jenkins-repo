@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        ARTIFACTORY_SERVER_ID = 'https://trial09dfm3.jfrog.io/ui/admin/repositories/virtual/my-java-app-libs-snapshot' // ✅ This must be the **Server ID** set in Jenkins → Manage Jenkins → Configure System → Artifactory
+        ARTIFACTORY_SERVER_ID = 'jfrog-ids' // ✅ This must be the **Server ID** set in Jenkins → Manage Jenkins → Configure System → Artifactory
     }
 
     parameters {
